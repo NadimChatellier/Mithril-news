@@ -90,7 +90,6 @@ describe("GET /api/articles", () => {
       .then(({ body }) => {
         expect(Array.isArray(body)).toEqual(true)
         body.forEach((article) => {
-          console.log(article)
           expect(typeof article).toEqual("object")
           expect(Object.keys(article)).toEqual(expect.arrayContaining([
             "author",
@@ -116,4 +115,18 @@ describe("GET /api/articles", () => {
   });
 });
 
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: Responds with an array containing objects with expected values", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body)
+      });
+  });
+
+  console.log("YOU HAVE TO MAKE TESTS FOR TASK 6")
+  console.log("Oh and delete these console logs too")
+});
 

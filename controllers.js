@@ -1,4 +1,4 @@
-const {getTopicData, getArticleIdData} = require('./models')
+const {getTopicData, getArticleIdData, getArticleData} = require('./models')
 const app = require("./app");
 const db = require('./db/connection');
 
@@ -25,6 +25,13 @@ function getArticleId(req, res){
         }
     })
 }
-module.exports = {getTopics, getArticleId}
+
+function getArticles(req, res){
+    return getArticleData()
+    .then((response) => {
+        res.status(200).send(response)
+    })
+}
+module.exports = {getTopics, getArticleId, getArticles}
     
 

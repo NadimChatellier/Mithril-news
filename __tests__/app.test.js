@@ -56,8 +56,6 @@ describe("GET /api/articles/:article_id", () => {
             "article_img_url" 
           ])
         );
-          // expect(typeof element.description).toEqual('string');
-          // expect(typeof element.slug).toEqual('string');
       });
   });
 
@@ -79,6 +77,41 @@ describe("GET /api/articles/:article_id", () => {
       .then(({ body }) => {
         expect(body.error).toEqual(400);
         expect(body.msg).toEqual("bad request");
+      });
+  });
+});
+
+
+describe("GET /api/articles", () => {
+  test("200: Responds with an array containing objects with expected values", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Array.isArray(body)).toEqual(true)
+        body.forEach((article) => {
+          console.log(article)
+          expect(typeof article).toEqual("object")
+          expect(Object.keys(article)).toEqual(expect.arrayContaining([
+            "author",
+            "title",
+            "article_id",
+            "topic",
+            "created_at",
+            "votes",
+            "article_img_url",
+             "comment_count"
+          ]))
+          expect(typeof article.author).toEqual("string")
+          expect(typeof article.title).toEqual("string")
+          expect(typeof article.article_id).toEqual("number")
+          expect(typeof article.topic).toEqual("string")
+          expect(typeof article.created_at).toEqual("string")
+          expect(typeof article.votes).toEqual("number")
+          expect(typeof article.article_img_url).toEqual("string")
+          //future proofing this in case a number should be returned instead of a string
+          expect(!isNaN(Number(article.comment_count))).toEqual(true);
+        })
       });
   });
 });

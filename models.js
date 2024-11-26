@@ -43,7 +43,7 @@ function getArticleData(){
         return res.rows
     })
     .catch((err) => {
-        throw err
+        next(err)
     })
 }
 
@@ -53,12 +53,46 @@ function getCommentsByArticleIdData(id){
     WHERE article_id = $1
     ORDER BY created_at DESC;`, [id]).then((res) =>{
         if (res.rows.length === 0){
-            return Promise.reject({ error: 404, message: `Comments for Article with id ${id} does not exist.` });
+            return Promise.reject({ status: 404, msg: `Comments for Article with id ${id} does not exist.`});
         }
         return res.rows
     })
 
 }
 
+function insertCommentIntoDb(id, comment) {
+    const { username, body } = comment;
 
-module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData}
+    if (!username || !body) {
+        return Promise.reject({ status: 400, msg: 'bad request' });
+    }
+
+    return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [id])
+      .then((articleRes) => {
+        if (articleRes.rows.length === 0) {
+          return Promise.reject({ status: 404, msg: 'Article not found.' });
+        }
+        return db.query(`SELECT * FROM users WHERE username = $1;`, [username]);
+      })
+      .then((userRes) => {
+        if (userRes.rows.length === 0) {
+          return Promise.reject({ status: 404, msg: 'User does not exist.' });
+        }
+        return db.query(
+          `INSERT INTO comments (article_id, author, body) 
+           VALUES ($1, $2, $3) RETURNING *;`,
+          [id, username, body]
+        );
+      })
+      .then((res) => {
+        return res.rows[0]; 
+      })
+      .catch((err) => {
+        return Promise.reject(err);
+      });
+  }
+  
+
+  
+
+module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb}

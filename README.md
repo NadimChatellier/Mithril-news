@@ -7,7 +7,7 @@
 
 Explanation: there will be two datasets we will primarily be working with: dev and test. These will be from the json objects found in /db/data/development-data and /db/data/test-data respectively
 
-Create two .env files and paste the contents following their respective semicolon within them: 
+Create two .env files and paste the contents following their respective semicolon within them (if in doubt there is a .env-example file that contains the type of content we expect): 
 
     - 1 .env.development: PGDATABASE=nc_news
     - 2 .env.test: PGDATABASE=nc_news_test

@@ -7,11 +7,11 @@ function getTopics(req, res){
         res.status(200).send(result)
     })
     .catch((err) => {
-        console.log(err)
+        next(err)
     })
 }
 
-function getArticleId(req, res){
+function getArticleId(req, res, next){
     const id = req.params.article_id
     getArticleIdData(id).then((result) =>{
         res.status(200).send(result)
@@ -23,6 +23,7 @@ function getArticleId(req, res){
         else {
             res.status(400).send({error: 400, msg :`bad request`})
         }
+        
     })
 }
 
@@ -34,20 +35,19 @@ function getArticles(req, res){
 }
 
 //work on refactoring errors before it gets out of hand
-function getCommentsByArticleId(req, res){
+function getCommentsByArticleId(req, res, next){
     const id = req.params.article_id
     getCommentsByArticleIdData(id).then((response)=>{
         res.status(200).send(response)
     })
     .catch((err) => {
-        if(err.code === '22P02'){
-            res.status(400).send('bad request')
-        }
-        else{
-            res.status(err.error).send(err.message)
-        }
+        next(err)
     })
 }
-module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId}
+
+function postCommentsOnArticle(req, res, next){
+    console.log(req.body)
+}
+module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle}
     
 

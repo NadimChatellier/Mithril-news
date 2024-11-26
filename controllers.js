@@ -57,6 +57,13 @@ function postCommentsOnArticle(req, res, next){
 
 function updateVotes(req, res, next){
     console.log(req.params)
+    updadeVoteData()
+    .then((response) =>{
+        console.log(response)
+    })
+    .catch((err) =>{
+        next(err)
+    })
 }
 module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes}
     

@@ -33,6 +33,7 @@ function getArticles(req, res){
     })
 }
 
+//work on refactoring errors before it gets out of hand
 function getCommentsByArticleId(req, res){
     const id = req.params.article_id
     getCommentsByArticleIdData(id).then((response)=>{

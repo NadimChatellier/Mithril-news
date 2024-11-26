@@ -155,3 +155,24 @@ describe("GET /api/articles/:article_id/comments", () => {
   });
 });
 
+// describe("POST /api/articles/:article_id/comments", () => {
+//   test("201: comments are successfully posted", () => {
+//     const newComment = {
+//       username: "Mithril_dagger",
+//       body: "All is good here!"
+//     };
+//     return request(app)
+//       .post("/api/articles/1/comments")
+//       .send(newComment) 
+//       .expect(201) 
+//       .then((response) => {
+//         expect(response.body.comment).toEqual(
+//           expect.objectContaining({
+//             username: "Mithril_dagger",
+//             body: "All is good here!",
+//           })
+//         );
+//       });
+//   });
+// });
+

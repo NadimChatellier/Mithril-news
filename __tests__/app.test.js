@@ -122,11 +122,36 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body }) => {
-        console.log(body)
+        body.forEach((comment) => {
+          expect(typeof comment).toEqual("object")
+          expect(Object.keys(comment).length).toEqual(6)
+          expect(Object.keys(comment)).toEqual(expect.arrayContaining([
+            "comment_id",
+            "votes",
+            "created_at",
+            "author",
+            "body",
+            "article_id",
+          ]))})
       });
   });
 
-  console.log("YOU HAVE TO MAKE TESTS FOR TASK 6")
-  console.log("Oh and delete these console logs too")
+  test("404: Responds with expected error if id is not within range of ", () => {
+    return request(app)
+      .get("/api/articles/99/comments")
+      .expect(404)
+      .then((res) => {
+        expect(res.error.text).toEqual("Comments for Article with id 99 does not exist.")
+      });
+  });
+
+  test("400: Responds with expected error if id is not within range of ", () => {
+    return request(app)
+      .get("/api/articles/Banana/comments")
+      .expect(400)
+      .then((res) => {
+        expect(res.error.text).toEqual('bad request')
+      });
+  });
 });
 

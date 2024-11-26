@@ -52,8 +52,12 @@ function getCommentsByArticleIdData(id){
     FROM comments
     WHERE article_id = $1
     ORDER BY created_at DESC;`, [id]).then((res) =>{
+        if (res.rows.length === 0){
+            return Promise.reject({ error: 404, message: `Comments for Article with id ${id} does not exist.` });
+        }
         return res.rows
     })
+
 }
 
 

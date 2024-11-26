@@ -38,6 +38,14 @@ function getCommentsByArticleId(req, res){
     getCommentsByArticleIdData(id).then((response)=>{
         res.status(200).send(response)
     })
+    .catch((err) => {
+        if(err.code === '22P02'){
+            res.status(400).send('bad request')
+        }
+        else{
+            res.status(err.error).send(err.message)
+        }
+    })
 }
 module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId}
     

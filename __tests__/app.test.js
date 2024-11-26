@@ -261,3 +261,15 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: updates the article's votes and responds with the updated article", () => {
+    const newComment = { inc_votes: 10 }; 
+    return request(app)
+      .patch("/api/articles/1") 
+      .send(newComment) 
+      .expect(200) 
+      .then(({ body }) => {
+        console.log(body); 
+      });
+  });
+});

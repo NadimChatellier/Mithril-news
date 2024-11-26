@@ -54,6 +54,10 @@ function postCommentsOnArticle(req, res, next){
         next(err)
     })
 }
-module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle}
+
+function updateVotes(req, res, next){
+    console.log(req.params)
+}
+module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes}
     
 

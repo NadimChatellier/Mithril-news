@@ -1,4 +1,4 @@
-const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb} = require('./models')
+const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData} = require('./models')
 const app = require("./app");
 const db = require('./db/connection');
 
@@ -56,10 +56,9 @@ function postCommentsOnArticle(req, res, next){
 }
 
 function updateVotes(req, res, next){
-    console.log(req.params)
-    updadeVoteData()
+    updadeVoteData(req.params, req.body)
     .then((response) =>{
-        console.log(response)
+        res.status(200).send(response)
     })
     .catch((err) =>{
         next(err)

@@ -92,7 +92,22 @@ function insertCommentIntoDb(id, comment) {
       });
   }
   
+  function updadeVoteData(idObj, votesObj){
+    const {article_id} = idObj
+    const {inc_votes} = votesObj
+    if (!inc_votes || !/^-?\d+(\.\d+)?$/.test(inc_votes)) {
+        return Promise.reject({ status: 400, msg: "Invalid or missing votes value" });
+    }
+    return db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`, [inc_votes, Number(article_id)])
+    .then(({rows}) => {
+        if (rows.length === 0){
+            return Promise.reject({status: 404, msg: "User does not exist"})
+        }
+        return rows[0]
+
+    })
+  }
 
   
 
-module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb}
+module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData}

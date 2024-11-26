@@ -261,16 +261,64 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
-// describe("PATCH /api/articles/:article_id", () => {
-//   test("200: updates the article's votes and responds with the updated article", () => {
-//     const newComment = { inc_votes: 10 }; 
-//     return request(app)
-//       .patch("/api/articles/1") 
-//       .send(newComment) 
-//       .expect(200) 
-//       .then(({ body }) => {
-//         console.log(body); 
-//       });
-//   });
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: updates the article's votes and responds with the updated article", () => {
+    const newVotes = { inc_votes: 10 }; 
+    return db
+      .query(`SELECT votes FROM articles WHERE article_id = 1;`)
+      .then((res) => {
+        const originalVoteCount = res.rows[0].votes; // Extract original votes
+        return request(app)
+          .patch("/api/articles/1")
+          .send(newVotes) 
+          .expect(200)
+          .then(({ body }) => {
+            expect(Object.keys(body)).toEqual(
+              expect.arrayContaining([
+                "author",
+                "title",
+                "article_id",
+                "body",
+                "topic",
+                "created_at",
+                "votes",
+                "article_img_url"
+              ])
+            );
 
-// });
+            // Check if the votes were incremented correctly
+            expect(body.votes).toBe(originalVoteCount + newVotes.inc_votes);
+          });
+      });
+  });
+
+  test("400: responds with an error if inc_votes is missing", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({}) // inc_votes is missing
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid or missing votes value");
+      });
+  });
+
+  test("400: responds with an error if inc_votes is invalid", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({inc_votes : "NOT A REAL VALUE"}) // inc_votes is missing
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid or missing votes value");
+      });
+  });
+
+  test("404: responds with appropropriate error if id is out of range of database", () =>{
+    return request(app)
+    .patch("/api/articles/99")
+    .send({inc_votes: 1})
+    .expect(404)
+    .then(( { body }) =>{
+      expect(body.msg).toBe("User does not exist")
+    })
+  })
+});

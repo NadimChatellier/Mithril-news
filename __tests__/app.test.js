@@ -6,6 +6,7 @@ const {testData} = require("../index")
 const {topicData, userData, articleData, commentData} = testData
 const db = require("../db/connection")
 const seed = require("../db/seeds/seed");
+const { convertTimestampToDate } = require("../db/seeds/utils");
 /* Set up your beforeEach & afterAll functions here */
 
 beforeEach(() => seed({topicData, userData, articleData, commentData}))
@@ -141,7 +142,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/99/comments")
       .expect(404)
       .then((res) => {
-        expect(res.error.text).toEqual("Comments for Article with id 99 does not exist.")
+        expect(JSON.parse(res.error.text)).toEqual({ msg: "Comments for Article with id 99 does not exist."})
       });
   });
 
@@ -150,29 +151,113 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/Banana/comments")
       .expect(400)
       .then((res) => {
-        expect(res.error.text).toEqual('bad request')
+        expect(JSON.parse(res.error.text)).toEqual({msg: 'bad request'})
       });
   });
 });
 
-// describe("POST /api/articles/:article_id/comments", () => {
-//   test("201: comments are successfully posted", () => {
-//     const newComment = {
-//       username: "Mithril_dagger",
-//       body: "All is good here!"
-//     };
-//     return request(app)
-//       .post("/api/articles/1/comments")
-//       .send(newComment) 
-//       .expect(201) 
-//       .then((response) => {
-//         expect(response.body.comment).toEqual(
-//           expect.objectContaining({
-//             username: "Mithril_dagger",
-//             body: "All is good here!",
-//           })
-//         );
-//       });
-//   });
-// });
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: comments are successfully posted", () => {
+    const newComment = {
+      username: "lurker",
+      body: "All is good here!"
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment) 
+      .expect(201) 
+      .then(({body}) => {
+        
+        expect(Object.keys(body).length).toEqual(6)
+        expect(body.body).toEqual("All is good here!")
+        expect(body.author).toEqual("lurker")
+        expect(body.article_id).toEqual(1)
+        expect(typeof body.article_id && typeof body.votes && typeof body.comment_id).toEqual("number")
+        expect(Object.keys(body)).toEqual(
+          expect.arrayContaining(["comment_id", "body", "article_id", "author", "votes", "created_at"])
+        );
+      });
+  });
+
+
+   test("400: missing 'username'", () => {
+    const newComment = {
+      body: "All is good here!"
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+
+ 
+  test("400: missing 'body'", () => {
+    const newComment = {
+      username: "lurker"
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+
+ 
+  test("404: user does not exist", () => {
+    const newComment = {
+      username: "nonexistent_user",
+      body: "This comment is invalid."
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("User does not exist.");
+      });
+  });
+
+  test("404: article not found", () => {
+    const newComment = {
+      username: "lurker",
+      body: "This article doesn't exist."
+    };
+    return request(app)
+      .post("/api/articles/999/comments")  
+      .send(newComment)
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Article not found.");
+      });
+  });
+
+  test("400: empty request body", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({})
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+
+  test("400: invalid article_id type", () => {
+    const newComment = {
+      username: "lurker",
+      body: "This is a test comment."
+    };
+    return request(app)
+      .post("/api/articles/invalid_id/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+});
 

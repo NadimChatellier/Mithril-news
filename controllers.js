@@ -1,4 +1,4 @@
-const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData} = require('./models')
+const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb} = require('./models')
 const app = require("./app");
 const db = require('./db/connection');
 
@@ -46,7 +46,13 @@ function getCommentsByArticleId(req, res, next){
 }
 
 function postCommentsOnArticle(req, res, next){
-    console.log(req.body)
+    const {article_id} = req.params
+    insertCommentIntoDb(article_id, req.body).then((response) =>{
+        res.status(201).send(response)
+    })
+    .catch((err) => {
+        next(err)
+    })
 }
 module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle}
     

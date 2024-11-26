@@ -21,25 +21,24 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.post("/api/articles/:article_id/comments", postCommentsOnArticle)
 
-app.use((err, req, res, next) =>{
-    if(err.code === '22P02'){
-        res.status(400).send('bad request')
+app.use((err, req, res, next) => {
+    const pgErrors = ['22P02', '23502'];
+    if (pgErrors.includes(err.code)) {
+      return res.status(400).send({ msg: 'bad request' });
     }
-    else{
-       next(err)
+    next(err);  
+  });
+  
+app.use((err, req, res, next) => {
+    if (err.status && err.msg) {
+      return res.status(err.status).send({msg: err.msg });
     }
-})
+    next(err);  
+  });
+  
+app.use((err, req, res, next) => {
+    res.status(500).send({ msg: 'Internal server error' });
+  });
+  
 
-app.use((err, req, res, next) =>{
-    if (err.message && err.error){
-        res.status(err.error).send(err.message)
-    }
-    else{
-        next(err)
-    }
-})
-
-app.use((err, req, res, next) =>{
-    res.status(500).send("internal server error")
-})
 module.exports = app

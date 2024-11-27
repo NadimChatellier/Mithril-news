@@ -27,10 +27,13 @@ function getArticleId(req, res, next){
     })
 }
 
-function getArticles(req, res){
-    return getArticleData()
+function getArticles(req, res, next){
+    return getArticleData(req.query)
     .then((response) => {
         res.status(200).send(response)
+    })
+    .catch((err) => {
+        next(err)
     })
 }
 

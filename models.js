@@ -17,35 +17,55 @@ function getArticleIdData(id){
     
 }
 
-function getArticleData(){
-    //long query 
-    const query = `
-    SELECT 
-        articles.author,
-        articles.title,
-        articles.article_id,
-        articles.topic,
-        articles.created_at,
-        articles.votes,
-        articles.article_img_url,
-        COUNT(comments.comment_id) AS comment_count
-    FROM 
-        articles
-    LEFT JOIN 
-        comments
-    ON 
-        articles.article_id = comments.article_id
-    GROUP BY 
-        articles.article_id;`;
+function getArticleData(sortingQueries) {
+    const { sort_by = "created_at", order = "desc" } = sortingQueries;
 
+    // Define valid columns and orders
+    const validColumns = ["author", "title", "article_id", "topic", "created_at", "votes", "article_img_url", "comment_count"];
+    const validOrders = ["asc", "desc"];
+
+    // Validate sort_by and order
+    if (!validColumns.includes(sort_by)) {
+        return Promise.reject({ status: 400, msg: "Invalid sort column" });
+    }
+
+    if (!validOrders.includes(order)) {
+        return Promise.reject({ status: 400, msg: "Invalid order query" });
+    }
+
+    // Base query
+    let query = `
+        SELECT 
+            articles.author,
+            articles.title,
+            articles.article_id,
+            articles.topic,
+            articles.created_at,
+            articles.votes,
+            articles.article_img_url,
+            COUNT(comments.comment_id) AS comment_count
+        FROM 
+            articles
+        LEFT JOIN 
+            comments
+        ON 
+            articles.article_id = comments.article_id
+        GROUP BY 
+            articles.article_id`;
+
+    if (sort_by || order) {
+        query += ` ORDER BY ${sort_by} ${order}`;
+    }
+
+    query += `;`; 
+
+    // Execute query
     return db.query(query)
-    .then((res) => {
-        return res.rows
-    })
-    .catch((err) => {
-        next(err)
-    })
+        .then((res) => {
+            return res.rows;
+        })
 }
+
 
 function getCommentsByArticleIdData(id){
     return db.query(`SELECT comment_id, votes, created_at, author, body, article_id

@@ -155,6 +155,27 @@ describe("GET /api/articles", () => {
           expect(response.body.msg).toBe("Invalid order query");
         });
     });
+
+
+    test("200: sorts articles by topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .then(({body}) => {
+          body.forEach((article) => {
+            expect(article.topic).toEqual("mitch")
+          })
+        });
+    });
+    
+    test("returns error if article", async () => {
+      return request(app)
+        .get(`/api/articles?topic=NonExistentTopic`)
+        .expect(404)
+        .then((error) => {
+          expect(error.body.msg).toEqual("bad request")
+        })  
+     
+    });
     
   
   });
@@ -426,3 +447,7 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+
+
+

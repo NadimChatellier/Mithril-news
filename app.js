@@ -28,6 +28,8 @@ app.delete("/api/comments/:comment_id", deleteComment)
 
 app.get("/api/users", getUsers)
 
+
+
 app.use((err, req, res, next) => {
     const pgErrors = ['22P02', '23502'];
     if (pgErrors.includes(err.code)) {

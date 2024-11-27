@@ -18,13 +18,10 @@ function getArticleIdData(id){
 }
 
 function getArticleData(sortingQueries) {
-    const { sort_by = "created_at", order = "desc" } = sortingQueries;
-
-    // Define valid columns and orders
+    const { sort_by = "created_at", order = "desc", topic } = sortingQueries;
     const validColumns = ["author", "title", "article_id", "topic", "created_at", "votes", "article_img_url", "comment_count"];
     const validOrders = ["asc", "desc"];
 
-    // Validate sort_by and order
     if (!validColumns.includes(sort_by)) {
         return Promise.reject({ status: 400, msg: "Invalid sort column" });
     }
@@ -33,7 +30,6 @@ function getArticleData(sortingQueries) {
         return Promise.reject({ status: 400, msg: "Invalid order query" });
     }
 
-    // Base query
     let query = `
         SELECT 
             articles.author,
@@ -50,21 +46,31 @@ function getArticleData(sortingQueries) {
             comments
         ON 
             articles.article_id = comments.article_id
-        GROUP BY 
-            articles.article_id`;
+    `;
 
-    if (sort_by || order) {
-        query += ` ORDER BY ${sort_by} ${order}`;
+    let queryParams = []; 
+
+    if (topic) {
+        query += ` WHERE articles.topic = $1`; 
+        queryParams.push(topic);  
     }
 
-    query += `;`; 
+    query += ` GROUP BY articles.article_id`;
 
-    // Execute query
-    return db.query(query)
+    if (sort_by && order) {
+        query += ` ORDER BY ${sort_by} ${order}`; 
+    }
+
+    query += `;`;
+    return db.query(query, queryParams)
         .then((res) => {
+            if (res.rows.length === 0){
+                return Promise.reject({ status: 404, msg: `bad request`});
+            }
             return res.rows;
-        })
+        });
 }
+
 
 
 function getCommentsByArticleIdData(id){

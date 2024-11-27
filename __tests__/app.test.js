@@ -114,6 +114,51 @@ describe("GET /api/articles", () => {
         })
       });
   });
+  describe("GET /api/articles (sorting queries)", () => {
+    test("200: sorts articles by default 'created_at' in descending order", () => {
+      return request(app)
+      .get("/api/articles?sort_by=title&order=asc")
+      .then((response) => {
+        expect(response.status).toBe(200);
+        let titleArr = response.body.map(article => article.title);
+        const sortedTitles = [...titleArr].sort();  
+        expect(titleArr).toEqual(sortedTitles);
+      })
+      
+    });
+  
+    test("200: sorts articles by 'title' in descending order", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title&order=desc")
+        .then((response) => {
+          expect(response.status).toBe(200);
+          let titleArr = response.body.map(article => article.title);
+          const sortedTitlesDesc = [...titleArr].sort().reverse();  
+          expect(titleArr).toEqual(sortedTitlesDesc);
+        });
+    });
+  
+    test("400: returns an error when 'sort_by' is invalid", () => {
+      return request(app)
+        .get("/api/articles?sort_by=invalid_field&order=asc")
+        .then((response) => {
+          expect(response.status).toBe(400);
+          expect(response.body.msg).toBe("Invalid sort column");
+        });
+    });
+    
+    
+    test("400: returns an error when 'order' is invalid", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title&order=invalid_order")
+        .then((response) => {
+          expect(response.status).toBe(400);
+          expect(response.body.msg).toBe("Invalid order query");
+        });
+    });
+    
+  
+  });
 });
 
 
@@ -357,3 +402,6 @@ describe("DELETE /api/comments/:comment_id", () => {
           })
       });
 });
+
+
+

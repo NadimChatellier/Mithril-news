@@ -1,4 +1,4 @@
-const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData} = require('./models')
+const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData} = require('./models')
 const app = require("./app");
 const db = require('./db/connection');
 
@@ -64,6 +64,16 @@ function updateVotes(req, res, next){
         next(err)
     })
 }
-module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes}
+
+function deleteComment(req, res, next){
+    deleteCommentData(req.params.comment_id)
+    .then((response) =>{
+        res.status(204).send()
+    })
+    .catch((err) =>{
+        next(err)
+    })
+}
+module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes, deleteComment}
     
 

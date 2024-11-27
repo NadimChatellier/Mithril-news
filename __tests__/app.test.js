@@ -322,3 +322,38 @@ describe("PATCH /api/articles/:article_id", () => {
     })
   })
 });
+
+
+
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: deletes the given comment by comment_id and responds with no content", () => {
+  return request(app)
+      .delete(`/api/comments/1`)
+      .send()
+      .then((response) => {
+        expect(response.status).toBe(204); 
+        expect(response.body).toEqual({}); 
+      })
+  });
+
+  test("responds with an error if the comment_id does not exist", () => {
+    return request(app)
+        .delete(`/api/comments/99`)
+        .send()
+        .then((response) => {
+          expect(response.status).toBe(404); 
+          expect(response.body.msg).toEqual("comment does not exist"); 
+        })
+    });
+
+    test("responds with an error if the comment_id does not exist", () => {
+      return request(app)
+          .delete(`/api/comments/not_a_valid_id`)
+          .send()
+          .then((response) => {
+            expect(response.status).toBe(400); 
+            expect(response.body.msg).toEqual("bad request"); 
+          })
+      });
+});

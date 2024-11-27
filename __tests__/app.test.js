@@ -80,6 +80,16 @@ describe("GET /api/articles/:article_id", () => {
         expect(body.msg).toEqual("bad request");
       });
   });
+
+  test("200: test for added parameter comment_count parameter", () => {
+    return request(app)
+    .get("/api/articles/1")
+    .expect(200)
+    .then(({body}) => {
+      expect(Object.keys(body).includes("comment_count")).toEqual(true)
+    }) 
+  })
+
 });
 
 

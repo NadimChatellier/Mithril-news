@@ -7,11 +7,23 @@ function getTopicData(){
 }
 
 function getArticleIdData(id){
-    return db.query(`SELECT * FROM articles WHERE article_id = $1`, [id] ).then((res)=>{
+    return db.query(`SELECT articles.*, COUNT(comments.comment_id) AS comment_count
+    FROM 
+        articles
+    LEFT JOIN 
+        comments
+    ON 
+        articles.article_id = comments.article_id
+    WHERE   
+        articles.article_id = $1
+    GROUP BY 
+        articles.article_id;`, [id] )
+        .then((res)=>{
         if (res.rows.length === 0) {
             // Handle 404 error when no article is found
             return Promise.reject({ error: 404, message: `Article with id ${id} does not exist.` });
         }
+        console.log(res.rows[0])
         return res.rows[0]
     })
     

@@ -2,7 +2,7 @@ const {endpoints, testData, devData} = require("./index");
 const express = require("express");
 const fs = require("fs/promises");
 const app = express();
-const {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes} = require("./controllers")
+const {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes, deleteComment} = require("./controllers")
 const db = require('./db/connection');
 
 app.use(express.json());
@@ -22,6 +22,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentsOnArticle)
 
 app.patch("/api/articles/:article_id", updateVotes)
+
+app.delete("/api/comments/:comment_id", deleteComment)
 
 app.use((err, req, res, next) => {
     const pgErrors = ['22P02', '23502'];

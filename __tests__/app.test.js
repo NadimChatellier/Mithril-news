@@ -401,10 +401,6 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
 });
 
-
-
-
-
 describe("GET /api/users", () => {
   test("200: Responds with an array containing all users", () => {
     return request(app)

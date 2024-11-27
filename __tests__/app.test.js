@@ -92,7 +92,6 @@ describe("GET /api/articles/:article_id", () => {
 
 });
 
-
 describe("GET /api/articles", () => {
   test("200: Responds with an array containing objects with expected values", () => {
     return request(app)

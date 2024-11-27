@@ -109,7 +109,6 @@ describe("GET /api/articles", () => {
           expect(typeof article.created_at).toEqual("string")
           expect(typeof article.votes).toEqual("number")
           expect(typeof article.article_img_url).toEqual("string")
-          //future proofing this in case a number should be returned instead of a string
           expect(!isNaN(Number(article.comment_count))).toEqual(true);
         })
       });

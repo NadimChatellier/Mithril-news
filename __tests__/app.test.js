@@ -267,7 +267,7 @@ describe("PATCH /api/articles/:article_id", () => {
     return db
       .query(`SELECT votes FROM articles WHERE article_id = 1;`)
       .then((res) => {
-        const originalVoteCount = res.rows[0].votes; // Extract original votes
+        const originalVoteCount = res.rows[0].votes; 
         return request(app)
           .patch("/api/articles/1")
           .send(newVotes) 
@@ -286,7 +286,6 @@ describe("PATCH /api/articles/:article_id", () => {
               ])
             );
 
-            // Check if the votes were incremented correctly
             expect(body.votes).toBe(originalVoteCount + newVotes.inc_votes);
           });
       });
@@ -295,7 +294,7 @@ describe("PATCH /api/articles/:article_id", () => {
   test("400: responds with an error if inc_votes is missing", () => {
     return request(app)
       .patch("/api/articles/1")
-      .send({}) // inc_votes is missing
+      .send({}) 
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid or missing votes value");
@@ -356,4 +355,31 @@ describe("DELETE /api/comments/:comment_id", () => {
             expect(response.body.msg).toEqual("bad request"); 
           })
       });
+});
+
+
+describe("GET /api/users", () => {
+  test("200: Responds with an array containing all users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({body}) => {
+
+        expect(body.length !== 0).toEqual(true)
+        expect(Array.isArray(body)).toEqual(true);
+
+        body.forEach((user) => {
+          expect(Object.keys(user).length).toEqual(3)
+          expect(Object.keys(user)).toEqual(expect.arrayContaining([
+            "name",
+            "username",
+            "avatar_url"
+          ]))
+          expect(typeof user.username).toEqual("string")
+          expect(typeof user.name).toEqual("string")
+          expect(typeof user.avatar_url).toEqual("string")
+        })
+
+      });
+  });
 });

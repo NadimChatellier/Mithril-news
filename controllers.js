@@ -1,4 +1,4 @@
-const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData} = require('./models')
+const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData} = require('./models')
 const app = require("./app");
 const db = require('./db/connection');
 
@@ -34,7 +34,6 @@ function getArticles(req, res){
     })
 }
 
-//work on refactoring errors before it gets out of hand
 function getCommentsByArticleId(req, res, next){
     const id = req.params.article_id
     getCommentsByArticleIdData(id).then((response)=>{
@@ -74,6 +73,16 @@ function deleteComment(req, res, next){
         next(err)
     })
 }
-module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes, deleteComment}
+
+function getUsers(req, res, next){
+    getUsersData()
+    .then((response) =>{
+        res.status(200).send(response)
+    })
+    .catch((err) =>{
+        next(err)
+    })
+}
+module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes, deleteComment, getUsers}
     
 

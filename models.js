@@ -117,4 +117,11 @@ function insertCommentIntoDb(id, comment) {
     })
   }
 
-module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData}
+  function getUsersData(){
+    return db.query(`SELECT * FROM users;`)
+    .then(({rows}) => {
+        return rows
+    })
+  }
+
+module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData}

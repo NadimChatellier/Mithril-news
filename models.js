@@ -29,10 +29,10 @@ function getArticleIdData(id){
 }
 
 function getArticleData(sortingQueries) {
-    const { sort_by = "created_at", order = "desc", topic } = sortingQueries;
+    const { sort_by = "created_at", order = "desc", topic, limit = 10, p = 1 } = sortingQueries;
     const validColumns = ["author", "title", "article_id", "topic", "created_at", "votes", "article_img_url", "comment_count"];
+    console.log(limit)
     const validOrders = ["asc", "desc"];
-
     if (!validColumns.includes(sort_by)) {
         return Promise.reject({ status: 400, msg: "Invalid sort column" });
     }
@@ -72,13 +72,21 @@ function getArticleData(sortingQueries) {
         query += ` ORDER BY ${sort_by} ${order}`; 
     }
 
+    query += ` LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`;
+    queryParams.push(limit); 
+    queryParams.push((p - 1) * limit); 
+
     query += `;`;
     return db.query(query, queryParams)
         .then((res) => {
             if (res.rows.length === 0){
                 return Promise.reject({ status: 404, msg: `bad request`});
             }
-            return res.rows;
+            return db.query(`SELECT COUNT(*) AS total_count FROM articles`).then((count) =>{
+                const obj = {articles: res.rows, total_count: Number(count.rows[0].total_count)}
+                return obj;
+            })
+            
         });
 }
 

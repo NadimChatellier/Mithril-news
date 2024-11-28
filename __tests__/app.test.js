@@ -99,8 +99,9 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        expect(Array.isArray(body)).toEqual(true)
-        body.forEach((article) => {
+        const {articles} = body
+        expect(Array.isArray(articles)).toEqual(true)
+        articles.forEach((article) => {
           expect(typeof article).toEqual("object")
           expect(Object.keys(article)).toEqual(expect.arrayContaining([
             "author",
@@ -129,7 +130,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles?sort_by=title&order=asc")
       .then((response) => {
         expect(response.status).toBe(200);
-        let titleArr = response.body.map(article => article.title);
+        let titleArr = response.body.articles.map(article => article.title);
         const sortedTitles = [...titleArr].sort();  
         expect(titleArr).toEqual(sortedTitles);
       })
@@ -141,7 +142,7 @@ describe("GET /api/articles", () => {
         .get("/api/articles?sort_by=title&order=desc")
         .then((response) => {
           expect(response.status).toBe(200);
-          let titleArr = response.body.map(article => article.title);
+          let titleArr = response.body.articles.map(article => article.title);
           const sortedTitlesDesc = [...titleArr].sort().reverse();  
           expect(titleArr).toEqual(sortedTitlesDesc);
         });
@@ -171,7 +172,7 @@ describe("GET /api/articles", () => {
       return request(app)
         .get("/api/articles?topic=mitch")
         .then(({body}) => {
-          body.forEach((article) => {
+          body.articles.forEach((article) => {
             expect(article.topic).toEqual("mitch")
           })
         });
@@ -186,7 +187,26 @@ describe("GET /api/articles", () => {
         })  
      
     });
+
+
+    test("200: sorts articles by limit and returns obj including total article count", () => {
+      return request(app)
+      .get("/api/articles?limit=1")
+      .then(({body}) => {
+        expect(Object.keys(body).length).toEqual(2)
+        expect(Array.isArray(body.articles)).toEqual(true)
+        expect(body.articles.length).toEqual(1)
+        expect(body.total_count).toEqual(13)
+      })  
+    });
     
+    test("200: limit is set to 10 by default", () => {
+      return request(app)
+      .get("/api/articles")
+      .then(({body}) => {
+        expect(body.articles.length).toEqual(10)
+      })
+    });    
   
   });
 });

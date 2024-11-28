@@ -173,4 +173,31 @@ function insertCommentIntoDb(id, comment) {
     })
   }
 
-module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData}
+  function updateCommentVotesData(id, incVotesBy){
+    const {comment_id} = id
+    const {inc_votes} = incVotesBy
+    return db.query(`UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *;`, [inc_votes, comment_id])
+    .then(({rows}) => {
+        if (rows.length === 0){
+            return Promise.reject({status: 404, msg: "Comment does not exist"})
+        }
+        return rows[0]
+    })
+  }
+
+  function postArticleData(article){
+    const defaultIMG = "https://t4.ftcdn.net/jpg/08/02/80/49/240_F_802804966_xBLll6ZNXekZkC9pXHkicTX04EYCNU2u.jpg"
+    const {author, title, body, topic = defaultIMG} = article
+    const article_img_url = article.article_img_url || defaultIMG;
+    if (!author || !title || !body || !topic){
+        return Promise.reject({status: 400, msg: "Missing essential fields"})
+    }
+    return db.query(`INSERT INTO articles (author, title, body, topic, article_img_url) VALUES ($1, $2, $3, $4, $5) RETURNING *;`, [author, title, body, topic, article_img_url])
+    .then((res) => {
+       return res.rows[0]
+    })
+    .catch((err) => {
+        next(err)
+    })
+  }
+module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData, updateCommentVotesData, postArticleData}

@@ -1,4 +1,4 @@
-const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData} = require('./models')
+const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData, updateCommentVotesData, postArticleData} = require('./models')
 const app = require("./app");
 const db = require('./db/connection');
 
@@ -98,8 +98,25 @@ function getUsersById(req, res, next){
 }
 
 function updateCommentVotes(req, res, next){
-    console.log("TODO")
+
+    updateCommentVotesData(req.params, req.body)
+    .then((response) =>{
+        res.status(200).send(response)
+    })
+    .catch((err) =>{
+        next(err)
+    })
 }
-module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes, deleteComment, getUsers, getUsersById}
+
+function postArticle(req, res, next){
+    postArticleData(req.body)
+    .then((response) =>{
+        res.status(201).send(response)
+    })
+    .catch((err) =>{
+        next(err)
+    })
+}
+module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes, deleteComment, getUsers, getUsersById, updateCommentVotes, postArticle}
     
 

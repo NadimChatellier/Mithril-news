@@ -86,6 +86,7 @@ describe("GET /api/articles/:article_id", () => {
     .get("/api/articles/1")
     .expect(200)
     .then(({body}) => {
+      console.log(body)
       expect(Object.keys(body).includes("comment_count")).toEqual(true)
     }) 
   })
@@ -489,7 +490,120 @@ describe("GET /api/users/:username", () => {
 });
 
 
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200: Responds with Object containing expected values", () => {
+    const newVotes = { inc_votes: 10 }; 
+    return db
+      .query(`SELECT votes FROM comments WHERE comment_id = 1;`)
+      .then((res) => {
+        const originalVoteCount = res.rows[0].votes; 
+        return request(app)
+          .patch("/api/comments/1")
+          .send(newVotes) 
+          .expect(200)
+          .then(({ body }) => {
+            expect(Object.keys(body).length).toEqual(6)
+            expect(Object.keys(body)).toEqual(
+              expect.arrayContaining([
+                "comment_id",
+                "article_id",
+                "body",
+                "author",
+                "created_at",
+                "votes"
+              ])
+            );
+            expect(body.votes).toBe(originalVoteCount + newVotes.inc_votes);
+          });
+      });
+  });
 
+
+  test("400: responds with an error if inc_votes is missing", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({}) 
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+
+  test("400: responds with an error if inc_votes is invalid", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({inc_votes : "NOT A REAL VALUE"}) // inc_votes is missing
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("bad request");
+      });
+  });
+
+  test("404: responds with appropropriate error if id is out of range of database", () =>{
+    return request(app)
+    .patch("/api/comments/99")
+    .send({inc_votes: 1})
+    .expect(404)
+    .then(( { body }) =>{
+      expect(body.msg).toBe("Comment does not exist")
+    })
+  })
+
+});
+
+describe("POST /api/articles", () => {
+  test("201: articles are successfully posted", () => {
+    const newArticle = {
+      author: "lurker",
+      title: "Making sure things work!",
+      body: "General Kenobi!",
+      topic: "cats",
+      article_img_url: "https://as1.ftcdn.net/v2/jpg/02/93/15/52/1000_F_293155212_9WHZFhMB5wyg1j37VkwabFDnKD3veGkd.jpg"
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle) 
+      .expect(201) 
+      .then(({body}) => {
+        expect(Object.keys(body).length).toEqual(8)
+        expect(body.body).toEqual('General Kenobi!')
+        expect(body.author).toEqual("lurker")
+        expect(body.article_id).toEqual(14)
+        expect(typeof body.article_id && typeof body.votes).toEqual("number")
+        expect(Object.keys(body)).toEqual(
+          expect.arrayContaining(["article_id","title", "body", "article_id", "author", "votes", "created_at", "article_img_url"])
+        );
+      });
+  });
+
+  test("200: article img is set to a default if no article_img", () => {
+    const newArticle = {
+      author: "lurker",
+      title: "Making sure things work!",
+      body: "General Kenobi!",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle) 
+      .expect(201) 
+      .then(({body}) => {
+        expect(Object.keys(body).length).toEqual(8)
+        expect(body.article_img_url).toEqual("https://t4.ftcdn.net/jpg/08/02/80/49/240_F_802804966_xBLll6ZNXekZkC9pXHkicTX04EYCNU2u.jpg")
+      });
+  });
+
+  test("400: rejects request if all other params are missing", () => {
+    const newArticle = {};
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle) 
+      .expect(400) 
+      .then(({body}) => {
+        expect(body.msg).toEqual("Missing essential fields")
+      });
+  });
+});
 
 
 

@@ -458,5 +458,40 @@ describe("GET /api/users", () => {
 });
 
 
+describe("GET /api/users/:username", () => {
+  test("200: Responds with Object containing ", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then(({body}) => {
+
+        expect(Object.keys(body).length).toEqual(3)
+        expect(Object.keys(body)).toEqual(expect.arrayContaining([
+          "name",
+          "username",
+          "avatar_url"
+        ]))
+        expect(typeof body.username).toEqual("string")
+        expect(typeof body.name).toEqual("string")
+        expect(typeof body.avatar_url).toEqual("string")
+
+      });
+  });
+
+  test("404: Responds with error if username is not in DataBase", () => {
+    return request(app)
+      .get("/api/users/not_a_valid_user")
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toEqual('not_a_valid_user does not appear to be a user')
+      });
+  });
+});
+
+
+
+
+
+
 
 

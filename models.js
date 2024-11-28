@@ -23,7 +23,6 @@ function getArticleIdData(id){
             // Handle 404 error when no article is found
             return Promise.reject({ error: 404, message: `Article with id ${id} does not exist.` });
         }
-        console.log(res.rows[0])
         return res.rows[0]
     })
     
@@ -162,4 +161,16 @@ function insertCommentIntoDb(id, comment) {
     })
   }
 
-module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData}
+  function getUserByIdData(user){
+    const {username} = user
+
+    return db.query(`SELECT * FROM users WHERE username = $1;`, [username])
+    .then(({rows}) => {
+        if (!rows[0]){
+            return Promise.reject({status: 404, msg: `${username} does not appear to be a user`})
+        }
+        return rows[0]
+    })
+  }
+
+module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData}

@@ -1,4 +1,4 @@
-const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData, updateCommentVotesData, postArticleData, postTopicData} = require('./models')
+const {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData, updateCommentVotesData, postArticleData, postTopicData, deleteArticleData} = require('./models')
 const app = require("./app");
 const db = require('./db/connection');
 
@@ -127,6 +127,16 @@ function postTopics(req, res, next){
         next(err)
     })
 }
-module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes, deleteComment, getUsers, getUsersById, updateCommentVotes, postArticle, postTopics}
+
+function deleteArticle(req, res, next){
+    deleteArticleData(req.params)
+    .then(() =>{
+        res.status(204).send()
+    })
+    .catch((err) =>{
+        next(err)
+    })
+}
+module.exports = {getTopics, getArticleId, getArticles, getCommentsByArticleId, postCommentsOnArticle, updateVotes, deleteComment, getUsers, getUsersById, updateCommentVotes, postArticle, postTopics, deleteArticle}
     
 

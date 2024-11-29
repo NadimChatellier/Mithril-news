@@ -4,7 +4,7 @@ const fs = require("fs/promises");
 const app = express();
 const { getTopics, getArticleId, getArticles, getCommentsByArticleId, 
         postCommentsOnArticle, updateVotes, deleteComment, getUsers,
-        getUsersById, updateCommentVotes, postArticle, postTopics} = require("./controllers")
+        getUsersById, updateCommentVotes, postArticle, postTopics, deleteArticle} = require("./controllers")
 const db = require('./db/connection');
 
 app.use(express.json());
@@ -36,6 +36,8 @@ app.patch("/api/comments/:comment_id", updateCommentVotes)
 app.post("/api/articles", postArticle)
 
 app.post('/api/topics', postTopics)
+
+app.delete('/api/articles/:article_id', deleteArticle)
 
 app.use((err, req, res, next) => {
     const pgErrors = ['22P02', '23502'];

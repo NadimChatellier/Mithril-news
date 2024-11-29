@@ -234,4 +234,18 @@ function insertCommentIntoDb(id, comment) {
         return rows[0]
     })
   }
-module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData, updateCommentVotesData, postArticleData, postTopicData}
+
+  function deleteArticleData(article_idOBJ) {
+    const { article_id } = article_idOBJ;
+    return db.query(`DELETE FROM comments WHERE article_id = $1;`, [article_id])
+        .then(() => {
+            return db.query(`DELETE FROM articles WHERE article_id = $1 RETURNING *;`, [article_id]);
+        })
+        .then((response) => {
+            if (response.rows.length === 0) {
+                return Promise.reject({ status: 404, msg: "Article does not exist" });
+            }
+        });
+}
+
+module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData, updateCommentVotesData, postArticleData, postTopicData, deleteArticleData}

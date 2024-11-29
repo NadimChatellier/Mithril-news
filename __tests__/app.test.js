@@ -251,7 +251,7 @@ describe("GET /api/articles/:article_id/comments", () => {
 
   
 describe("optional queries", ()=>{
-  test("200: limits comments to an array of 7", () => {
+  test("200: limits comments to an array of length set in limit query", () => {
     return request(app)
     .get("/api/articles/1/comments?limit=7&p=1")
     .expect(200)
@@ -572,7 +572,7 @@ describe("PATCH /api/comments/:comment_id", () => {
   test("400: responds with an error if inc_votes is invalid", () => {
     return request(app)
       .patch("/api/comments/1")
-      .send({inc_votes : "NOT A REAL VALUE"}) // inc_votes is missing
+      .send({inc_votes : "NOT A REAL VALUE"}) 
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("bad request");
@@ -688,7 +688,57 @@ describe("POST /api/topics", () => {
       });
   });
 });
+describe("DELETE /api/article/:article_id", () =>{ 
+test("204: deletes expected article", () => {
+  const selectArticlesQuery = `SELECT * FROM articles`
+  return db.query(selectArticlesQuery)
+    .then(({rows})=>{
+      const originalarticlesLength = rows.length
+      return request(app)
+            .delete("/api/articles/1") //delete the article
+            .expect(204)
+            .then(() => {
+              return db.query(selectArticlesQuery)
+              .then(({rows}) =>{
+                expect(rows.length).toEqual(originalarticlesLength - 1)
+              })
+            });
+      
+    })
+});
 
+test("204: expect all comments associated with the article to also be deleted", () => {
+  const selectArticlesQuery = `SELECT * FROM comments WHERE article_id = 1;`
+  return db.query(selectArticlesQuery)
+    .then(({rows})=>{
+      expect(rows.length !==0 ).toEqual(true)
+      return request(app)
+            .delete("/api/articles/1") //delete the article
+            .expect(204)
+            .then(() => {
+              return db.query(selectArticlesQuery)
+              .then(({rows}) =>{
+                expect(rows.length).toEqual(0)
+              })
+            });
+    })
+});
 
+test("404: rejects request if article does not exist", () => {
+    return request(app)
+        .delete("/api/articles/99") //delete the article
+        .expect(404)
+        .then(({body}) =>{
+              expect(body.msg).toEqual('Article does not exist')
+          })
+});
 
-
+test("400: rejects request if article is not given a valid id", () => {
+  return request(app)
+      .delete("/api/articles/banana") //delete the article
+      .expect(400)
+      .then(({body}) =>{
+            expect(body.msg).toEqual('bad request')
+        })
+});
+})

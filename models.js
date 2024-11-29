@@ -20,7 +20,6 @@ function getArticleIdData(id){
         articles.article_id;`, [id] )
         .then((res)=>{
         if (res.rows.length === 0) {
-            // Handle 404 error when no article is found
             return Promise.reject({ error: 404, message: `Article with id ${id} does not exist.` });
         }
         return res.rows[0]
@@ -31,7 +30,6 @@ function getArticleIdData(id){
 function getArticleData(sortingQueries) {
     const { sort_by = "created_at", order = "desc", topic, limit = 10, p = 1 } = sortingQueries;
     const validColumns = ["author", "title", "article_id", "topic", "created_at", "votes", "article_img_url", "comment_count"];
-    console.log(limit)
     const validOrders = ["asc", "desc"];
     if (!validColumns.includes(sort_by)) {
         return Promise.reject({ status: 400, msg: "Invalid sort column" });
@@ -92,21 +90,41 @@ function getArticleData(sortingQueries) {
 
 
 
-function getCommentsByArticleIdData(id){
-    return db.query(`SELECT comment_id, votes, created_at, author, body, article_id
-    FROM comments
-    WHERE article_id = $1
-    ORDER BY created_at DESC;`, [id]).then((res) =>{
-        if (res.rows.length === 0){
-            return Promise.reject({ status: 404, msg: `Comments for Article with id ${id} does not exist.`});
-        }
-        return res.rows
-    })
+function getCommentsByArticleIdData(id, optionalQuery) {
+    const { limit = 1, p = 1 } = optionalQuery || {};
+    const offset = (p - 1) * limit; 
 
+    const numRegex = /^\d+$/;
+
+    if (!numRegex.test(limit.toString()) || !numRegex.test(p.toString())) {
+        return Promise.reject({
+            status: 400,
+            msg: "Invalid query parameters: 'limit' and 'p' must be positive integers."
+        });
+    }
+
+    let query = `
+        SELECT comment_id, votes, created_at, author, body, article_id
+        FROM comments
+        WHERE article_id = $1
+        ORDER BY created_at DESC
+        LIMIT $2 OFFSET $3`;
+
+    return db.query(query, [id, limit, offset]).then((res) => {
+        if (res.rows.length === 0) {
+            return Promise.reject({
+                status: 404,
+                msg: `Comments for Article with id ${id} does not exist.`
+            });
+        }
+        return res.rows;
+    });
 }
+
 
 function insertCommentIntoDb(id, comment) {
     const { username, body } = comment;
+
 
     if (!username || !body) {
         return Promise.reject({ status: 400, msg: 'bad request' });
@@ -208,4 +226,12 @@ function insertCommentIntoDb(id, comment) {
         next(err)
     })
   }
-module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData, updateCommentVotesData, postArticleData}
+
+  function postTopicData(newTopic){
+    const {slug, description} = newTopic
+    return db.query(`INSERT INTO topics (slug, description) VALUES ($1, $2) RETURNING *;`, [slug, description])
+    .then(({rows}) =>{
+        return rows[0]
+    })
+  }
+module.exports = {getTopicData, getArticleIdData, getArticleData, getCommentsByArticleIdData, insertCommentIntoDb, updadeVoteData, deleteCommentData, getUsersData, getUserByIdData, updateCommentVotesData, postArticleData, postTopicData}

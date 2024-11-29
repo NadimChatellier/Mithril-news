@@ -86,7 +86,6 @@ describe("GET /api/articles/:article_id", () => {
     .get("/api/articles/1")
     .expect(200)
     .then(({body}) => {
-      console.log(body)
       expect(Object.keys(body).includes("comment_count")).toEqual(true)
     }) 
   })
@@ -249,6 +248,27 @@ describe("GET /api/articles/:article_id/comments", () => {
         expect(JSON.parse(res.error.text)).toEqual({msg: 'bad request'})
       });
   });
+
+  
+describe("optional queries", ()=>{
+  test("200: limits comments to an array of 7", () => {
+    return request(app)
+    .get("/api/articles/1/comments?limit=7&p=1")
+    .expect(200)
+    .then(({body}) => {
+      expect(body.length).toEqual(7)
+    })
+  });
+  
+  test("400: does not accept not integers for queries", () => {
+    return request(app)
+    .get("/api/articles/1/comments?limit=bananaIsNotAnId&p=1")
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toEqual("Invalid query parameters: 'limit' and 'p' must be positive integers.")
+    })
+  });
+})  
 });
 
 describe("POST /api/articles/:article_id/comments", () => {
@@ -625,6 +645,49 @@ describe("POST /api/articles", () => {
   });
 });
 
+describe("POST /api/topics", () => {
+  test("200: Responds with newly created topic Object", () => {
+    const newTopic = {
+                      "slug": "Gaming",
+                      "description": "Can we talk about how Overwatch has crashed from grace?"
+                    }
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(201)
+      .then(({ body }) => {
+        expect(Object.keys(body).length).toEqual(2)
+        expect(Object.keys(body)).toEqual(
+          expect.arrayContaining([
+            "slug",
+            "description"
+          ])
+        );
+      });
+  });
+
+  test("400: Rejects empty object", () => {
+    const newTopic = {}
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("bad request")
+      });
+  });
+
+  test("400: Object must have required keys", () => {
+    const newTopic = {banana: "this shouldnt work", apple: "this shouldnt work either"}
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("bad request")
+      });
+  });
+});
 
 
 

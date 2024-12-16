@@ -9,7 +9,7 @@ const db = require('./db/connection');
 const cors = require('cors')
 
 app.use(express.json());
-
+app.use(cors()); 
 app.get('/api', (req, res) => {
     res.status(200).send(endpoints)
 })
@@ -40,12 +40,6 @@ app.post('/api/topics', postTopics)
 
 app.delete('/api/articles/:article_id', deleteArticle)
 
-
-app.use(cors({
-  origin: 'http://localhost:5173', // Adjust the port as needed
-  methods: 'GET, POST, PUT, DELETE',
-  credentials: true // Ensure credentials (cookies, HTTP authentication) are allowed
-}));
 
 app.use((err, req, res, next) => {
     const pgErrors = ['22P02', '23502'];

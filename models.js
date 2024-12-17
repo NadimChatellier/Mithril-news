@@ -91,7 +91,7 @@ function getArticleData(sortingQueries) {
 
 
 function getCommentsByArticleIdData(id, optionalQuery) {
-    const { limit = 1, p = 1 } = optionalQuery || {};
+    const { limit = 10, p = 1 } = optionalQuery || {};
     const offset = (p - 1) * limit; 
 
     const numRegex = /^\d+$/;

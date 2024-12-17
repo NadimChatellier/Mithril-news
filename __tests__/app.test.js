@@ -272,7 +272,7 @@ describe("optional queries", ()=>{
 });
 
 describe("POST /api/articles/:article_id/comments", () => {
-  test("201: comments are successfully posted", () => {
+  test.only("201: comments are successfully posted", () => {
     const newComment = {
       username: "lurker",
       body: "All is good here!"
@@ -281,8 +281,9 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/1/comments")
       .send(newComment) 
       .expect(201) 
-      .then(({body}) => {
-        
+      .then((res) => {
+        const body = res.body [res.body.length - 1]
+        console.log(body)
         expect(Object.keys(body).length).toEqual(6)
         expect(body.body).toEqual("All is good here!")
         expect(body.author).toEqual("lurker")

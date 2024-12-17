@@ -122,38 +122,52 @@ function getCommentsByArticleIdData(id, optionalQuery) {
 }
 
 
+//potentially have to revise this?
 function insertCommentIntoDb(id, comment) {
     const { username, body } = comment;
 
-
     if (!username || !body) {
-        return Promise.reject({ status: 400, msg: 'bad request' });
+        return Promise.reject({ status: 400, msg: 'Bad request: Missing username or body.' });
     }
 
     return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [id])
-      .then((articleRes) => {
-        if (articleRes.rows.length === 0) {
-          return Promise.reject({ status: 404, msg: 'Article not found.' });
-        }
-        return db.query(`SELECT * FROM users WHERE username = $1;`, [username]);
-      })
-      .then((userRes) => {
-        if (userRes.rows.length === 0) {
-          return Promise.reject({ status: 404, msg: 'User does not exist.' });
-        }
-        return db.query(
-          `INSERT INTO comments (article_id, author, body) 
-           VALUES ($1, $2, $3) RETURNING *;`,
-          [id, username, body]
-        );
-      })
-      .then((res) => {
-        return res.rows[0]; 
-      })
-      .catch((err) => {
-        return Promise.reject(err);
-      });
-  }
+        .then((articleRes) => {
+            console.log('Article Query Result:', articleRes.rows);
+            if (articleRes.rows.length === 0) {
+                return Promise.reject({ status: 404, msg: 'Article not found.' });
+            }
+            return db.query(`SELECT * FROM users WHERE username = $1;`, [username]);
+        })
+        .then((userRes) => {
+            console.log('User Query Result:', userRes.rows);
+            if (userRes.rows.length === 0) {
+                return Promise.reject({ status: 404, msg: 'User does not exist.' });
+            }
+            // Insert the new comment into the database
+            return db.query(
+                `INSERT INTO comments (article_id, author, body) 
+                 VALUES ($1, $2, $3) RETURNING *;`,
+                [id, username, body]
+            );
+        })
+        .then((insertRes) => {
+            console.log('Inserted Comment:', insertRes.rows[0]);
+            // Retrieve all comments for the specific article
+            return db.query(
+                `SELECT * FROM comments WHERE article_id = $1;`,
+                [id]
+            );
+        })
+        .then((res) => {
+            console.log('All Comments:', res.rows);
+            return res.rows; // Return the full array of comments
+        })
+        .catch((err) => {
+            console.error('Error:', err);
+            return Promise.reject(err);
+        });
+}
+
   
   function updadeVoteData(idObj, votesObj){
     const {article_id} = idObj

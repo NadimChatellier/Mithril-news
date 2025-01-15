@@ -1,38 +1,94 @@
-# Northcoders News API
+# Mithril News Backend
 
-This is my first hosted Backend project! The endpoints were built with the idea of making a website where users can create and vote on articles to share content based on topics!
+Welcome to the backend repository for Mithril News, a fullstack application that allows users to post and interact with articles. This backend was built using Node.js and Express, with a PostgreSQL database for data storage and Jest for testing. The application leverages Supabase for real-time functionality and is deployed on Render.
 
-Here is the link to the project: https://mithril-news.onrender.com/api
+## Features
 
-Under this endpoint you will find all other available endpoints, optional queries and how those can be used.
+- **RESTful API:** Provides endpoints for managing articles, users, and interactions.
+- **Database Integration:** Uses PostgreSQL for structured data storage.
+- **Real-Time Functionality:** Powered by Supabase to enable live updates.
+- **Testing Suite:** Comprehensive tests written with Jest to ensure API reliability.
 
-# Step 1:
-    Key notes:
-        -   ensure that you have the latest version of Node installed (I was using node -v 23+)
-        -   ensure that you have the latest version of Posgres installed (I was using psql (PostgreSQL) 14.13 (Ubuntu 14.13-0ubuntu0.22.04.1))
+## Tech Stack
 
-    If you wish to update your Node or Posgres use the following commands for Node and Posgres respectively:
+### Backend
+- **Node.js**: JavaScript runtime for building scalable server-side applications.
+- **Express**: Framework for creating robust APIs.
+- **PostgreSQL**: Relational database for managing application data.
+- **Jest**: Testing framework for unit and integration tests.
 
-    Node:
-        -   nvm install node 
-        -   nvm use node
-        -   nvm alias default node
+### Deployment
+- **Render**: Hosting platform for deploying the backend service.
 
-    //to update: remind yourself how you installed posgres 
-    
-# Step 2: setup .env files
+### Fullstack Tech Stack Overview
+For the fullstack implementation, the project also utilizes the following technologies:
+- **Frontend:** React Vite, CSS, HTML, Material-UI (MUI)
+- **Hosting:** Netlify (frontend), Render (backend)
+- **Database:** Supabase
 
-Explanation: there will be two datasets we will primarily be working with: dev and test. These will be from the json objects found in /db/data/development-data and /db/data/test-data respectively
+## Installation and Setup
 
-Create two .env files and paste the contents following their respective semicolon within them (if in doubt there is a .env-example file that contains the type of content we expect): 
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/NadimChatellier/Mithril-news.git
+   cd Mithril-news
+   ```
 
-    - 1 .env.development: PGDATABASE=nc_news
-    - 2 .env.test: PGDATABASE=nc_news_test
+2. **Install Dependencies**
+   Make sure you have Node.js and npm installed, then run:
+   ```bash
+   npm install
+   ```
 
-# Final step: All good to go!
+3. **Set Up Environment Variables**
+   Create a `.env` file in the root of the project and add the following:
+   ```env
+   DATABASE_URL=your_postgresql_database_url
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_KEY=your_supabase_key
+   ```
 
---- 
+4. **Run the Development Server**
+   ```bash
+   npm start
+   ```
+   The server will start at `http://localhost:3000`.
 
-This portfolio project was created as part of a Digital Skills Bootcamp in Software Engineering provided by [Northcoders](https://northcoders.com/)
+5. **Run Tests**
+   To execute the test suite:
+   ```bash
+   npm test
+   ```
 
+## API Endpoints
+
+### Articles
+- `GET /api/articles`: Retrieve a list of all articles.
+- `POST /api/articles`: Create a new article.
+- `GET /api/articles/:id`: Retrieve details of a specific article.
+- `PATCH /api/articles/:id`: Update an article.
+- `DELETE /api/articles/:id`: Delete an article.
+
+### Users
+- `GET /api/users`: Retrieve a list of all users.
+- `POST /api/users`: Register a new user.
+
+### Interactions
+- `POST /api/articles/:id/interact`: Add an interaction (like/dislike) to an article.
+
+## Deployment
+The backend is deployed on Render and is accessible at [Mithril News Backend](#).
+
+## Contributing
+
+We welcome contributions to improve the application. To contribute:
+1. Fork the repository.
+2. Create a new branch.
+3. Commit and push your changes.
+4. Open a pull request.
+
+## Frontend Repository
+The frontend of this project is available here: .
+
+Thank you for exploring Mithril News! If you have any questions or suggestions, feel free to open an issue or contact the maintainers.
 
